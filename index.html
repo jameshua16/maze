@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+   
+    <style>
+    #canvas{
+    background: rgb(174, 192, 212);
+    display: block;
+    margin: 0 auto;
+    }
+    #upbtn{
+        display: block;
+    }
+    .directions{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" height="500" width="500"></canvas>
+    <div class="directions">
+        <a class="btn-floating btn-large waves-effect waves-light red" onclick="playMove(0,2)"><i class="material-icons">arrow_upward</i></a>
+        <div id="otherbtn">
+            <a class="btn-floating btn-large waves-effect waves-light red" onclick="playMove(3,1)"><i class="material-icons">arrow_back</i></a>
+            <a class="btn-floating btn-large waves-effect waves-light red" onclick="playMove(2,0)"><i class="material-icons">arrow_downward</i></a>
+            <a class="btn-floating btn-large waves-effect waves-light red" onclick="playMove(1,3)"><i class="material-icons">arrow_forward</i></a>
+    </div>  
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        var m = 10,n = 10
+        var disp = maze(m,n);
+        const canv = document.getElementById('canvas');
+        const ctx = canv.getContext('2d')
+        var scale = 40
+        for (var i = 0; i < disp.length; i++) {
+            for (var j = 0; j < disp[i].length; j++) {
+                var x = (i+1)*scale;
+                var y = (j+1)*scale;
+                //ctx.fillText(j+','+i, x,y);
+                ctx.beginPath();
+                const drawBorder = function(dir){
+                    switch(dir){
+                        case(0):
+                        //top
+                            ctx.moveTo(x,y);
+                            ctx.lineTo(x+scale,y);
+                            break;
+                        case(1):
+                            //right
+                            ctx.moveTo(x+scale,y);
+                            ctx.lineTo(x+scale,y+scale);
+                            break;
+                        case(2):
+                            //bottom
+                            ctx.moveTo(x+scale,y+scale);
+                            ctx.lineTo(x,y+scale);
+                            break;
+                        case(3):
+                            //left
+                            ctx.moveTo(x,y+scale);
+                            ctx.lineTo(x,y);
+                            break;
+                    }
+                    ctx.closePath(); //闭合路径
+                    ctx.lineWidth = 1; //线的边框为10像素
+                    ctx.strokeStyle = 'black';
+                    ctx.stroke(); //绘制定义的图形
+                }
+                for(let k = 0;k<disp[j][i].length;k++){
+                    if(disp[j][i][k]==0){
+                        drawBorder(k)
+                    }
+                }
+            }
+        }
+        
+        ctx.fillStyle = 'green'
+        ctx.fillRect(5+scale,5+scale,scale-10,scale-10)
+        ctx.fillStyle = 'red'
+        ctx.fillRect(x+5,y+5,scale-10,scale-10)
+
+        
+
+        document.addEventListener('keydown',event => {
+            switch(event.keyCode){
+                case 37:
+                    playMove(3,1)
+                    break
+                    //left
+                case 39:
+                    playMove(1,3)
+                    break
+                    //right
+                case 40:
+                    playMove(2,0)
+                    break
+                    //
+                case 38:
+                    playMove(0,2)
+                    break
+                    //top
+            }
+        })
+        var currPos = [0,0]
+        //[y,x]
+        function playMove(cur,next){
+            var fourDir = [[1,0],[0,-1],[-1,0],[0,1]]
+            var nextPos = [(currPos[0]+fourDir[next][0]),(currPos[1]+fourDir[next][1])]
+            
+            if(disp[currPos[0]][currPos[1]][cur]==1&&
+                disp[nextPos[0]][nextPos[1]][next]==1){
+                    ctx.fillStyle = 'green'
+                    ctx.fillRect(currPos[1]*scale+scale+5,currPos[0]*scale+scale+5,scale-10,scale-10)
+                    ctx.fillStyle = 'yellow'
+                    ctx.fillRect(nextPos[1]*scale+scale+5,nextPos[0]*scale+scale+5,
+                    scale-10,scale-10)
+                    currPos = [nextPos[0],nextPos[1]]
+                    if(currPos[1]==(n-1)&&currPos[0]==(m-1)){
+                        alert('you win')
+                    }
+                }
+        }
+            
+    </script>
+</body>
+</html>
