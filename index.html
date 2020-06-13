@@ -22,10 +22,24 @@
         justify-content: center;
         align-items: center;
     }
+    .btn{
+        justify-content: center; 
+        align-items: center;    
+        margin: 15px;
+    }
+    .btns{
+         
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
     </style>
 </head>
 <body>
-    <a class="waves-effect waves-light btn" onclick="solve()">solve it</a>
+    <div class="btns"> 
+        <a class="waves-effect waves-light btn" onclick="solve()">solve it</a>
+        <a class="waves-effect waves-light btn" >playground</a></div>
     <canvas id="canvas" height="500" width="500"></canvas>
     <div class="directions">
         <a class="btn-floating btn-large waves-effect waves-light red" onclick="playMove(0,2)"><i class="material-icons">arrow_upward</i></a>
