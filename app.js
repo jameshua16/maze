@@ -93,6 +93,9 @@ function solveMaze(){
             if(currPos[1]==(n-1)&&currPos[0]==(m-1)){
                 alert('computer wins')
                 clearInterval(setInterv)
+                finalPath(path)
+                console.log(path);
+                
             }
             //visited++
             path.push(currPos)
@@ -170,5 +173,29 @@ function refresh(){
     ctx.clearRect(0, 0, w, h)
     disp = maze(m,n)
     drawMaze(disp,'black',1)
+}
+function finalPath(path){
+    // if(path.length){
+    //     // setInterval(function(){
+    //     //     aPath = path.pop()
+    //     //     ctx.fillStyle = 'yellow'
+    //     //     ctx.fillRect(aPath[0]*scale+scale+ind,aPath[1]*scale+scale+ind,
+    //     //     scale-2*ind,scale-2*ind)
+    //     //     console.log(path);
+            
+    //     // },300)
+    //     console.log(path);
+    // }
+    for(let k =path.length;k>0;k--){
+        setInterval(() => {
+            ctx.fillStyle = 'yellow'
+            ctx.fillRect(path[k][1]*scale+scale+ind,path[k][0]*scale+scale+ind,
+            scale-2*ind,scale-2*ind)
+        }, 200*(path.length-k));
+            
+        console.log(path[k]);
+        
+    }
+    console.log(path)
 }
 
