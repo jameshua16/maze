@@ -38,8 +38,9 @@
 </head>
 <body>
     <div class="btns"> 
+        <a class="waves-effect waves-light btn" onclick="refresh()">refresh</a>
         <a class="waves-effect waves-light btn" onclick="solve()">solve it</a>
-        <a class="waves-effect waves-light btn" >playground</a></div>
+        <a class="waves-effect waves-light btn" onclick="playgroundInit()">playground</a></div>
     <canvas id="canvas" height="500" width="500"></canvas>
     <div class="directions">
         <a class="btn-floating btn-large waves-effect waves-light red" onclick="playMove(0,2)"><i class="material-icons">arrow_upward</i></a>
@@ -52,60 +53,15 @@
 
     <script src="app.js"></script>
     <script>
-        var m = 20,n = 20
-        var disp = maze(m,n);
-        const canv = document.getElementById('canvas');
+        var m = 10,n = 10
+        const canv = document.getElementById('canvas')
+        w = canv.width
+        h = canv.height
         const ctx = canv.getContext('2d')
-        var scale = 20
-        var ind = 3
-
-        for (var i = 0; i < disp.length; i++) {
-            for (var j = 0; j < disp[i].length; j++) {
-                var x = (i+1)*scale;
-                var y = (j+1)*scale;
-                //ctx.fillText(j+','+i, x,y);
-                ctx.beginPath();
-                const drawBorder = function(dir){
-                    switch(dir){
-                        case(0):
-                        //top
-                            ctx.moveTo(x,y);
-                            ctx.lineTo(x+scale,y);
-                            break;
-                        case(1):
-                            //right
-                            ctx.moveTo(x+scale,y);
-                            ctx.lineTo(x+scale,y+scale);
-                            break;
-                        case(2):
-                            //bottom
-                            ctx.moveTo(x+scale,y+scale);
-                            ctx.lineTo(x,y+scale);
-                            break;
-                        case(3):
-                            //left
-                            ctx.moveTo(x,y+scale);
-                            ctx.lineTo(x,y);
-                            break;
-                    }
-                    ctx.closePath(); //闭合路径
-                    ctx.lineWidth = 1; //线的边框为10像素
-                    ctx.strokeStyle = 'black';
-                    ctx.stroke(); //绘制定义的图形
-                }
-                for(let k = 0;k<disp[j][i].length;k++){
-                    if(disp[j][i][k]==0){
-                        drawBorder(k)
-                    }
-                }
-            }
-        }
-        
-        ctx.fillStyle = 'green'
-        ctx.fillRect(ind+scale,ind+scale,scale-2*ind,scale-2*ind)
-        ctx.fillStyle = 'red'
-        ctx.fillRect(x+ind,y+ind,scale-2*ind,scale-2*ind)
-
+        var scale = 40
+        var ind = 5
+        var disp = maze(m,n)
+        drawMaze(disp)
         document.addEventListener('keydown',event => {
             switch(event.keyCode){
                 case 37:
@@ -128,90 +84,158 @@
         })
         var currPos = [0,0]
         //[y,x]
-        
-        function playMove(cur,next){ 
-            var fourDir = [[1,0],[0,-1],[-1,0],[0,1]]
-            var nextPos = [(currPos[0]+fourDir[next][0]),(currPos[1]+fourDir[next][1])]
-            if(disp[currPos[0]][currPos[1]][cur]==1&&
-                disp[nextPos[0]][nextPos[1]][next]==1){
-                    ctx.fillStyle = 'green'
-                    ctx.fillRect(currPos[1]*scale+scale+ind,currPos[0]*scale+scale+ind,scale-2*ind,scale-2*ind)
-                    ctx.fillStyle = 'yellow'
-                    ctx.fillRect(nextPos[1]*scale+scale+ind,nextPos[0]*scale+scale+ind,
-                    scale-2*ind,scale-2*ind)
-                    currPos = [nextPos[0],nextPos[1]]
-                    if(currPos[1]==(n-1)&&currPos[0]==(m-1)){
-                        alert('you win')
-                    }
-                }
-        }
-        let unvisited = []
-            for(let i = 0; i < n;i++){
-                unvisited[i] = []
-                for(let j = 0; j < m; j++){
-                    unvisited[i][j] = true
-                }
+        var cells = []
+        var unvisited = []
+        for(var i = 0; i < n;i++){
+            cells[i] = []
+            unvisited[i] = []
+            for(var j = 0; j < m; j++){
+                cells[i][j] = [1,1,1,1]
+                unvisited[i][j] = true
             }
+        }
             var path = [currPos]
-        function solveMaze(){
-           
-            var dir = [[1,3],[3,1],[0,2],[2,0]]
+            function playgroundInit(){
+                ctx.clearRect(0, 0, w, h) 
+                var blankDisp = new Array(n).fill(new Array(m).fill([0,0,0,0]))
+                console.log(blankDisp)
+                drawMaze(blankDisp,'#A9A9A9',0)
+            }
+            canv.addEventListener("mousedown", function (e) {
+            drawPix(e)
+        }, false)
+        var prevX = 0,
+        currX = scale,
+        prevY = 0,
+        currY = scale
+        var dot_flag = false
+        var unvi = []
+        for(var i = 0; i < n+1;i++){
+                    unvi[i] = []
+                    for(var j = 0; j < m+1; j++){
+                        unvi[i][j] = true
+                    }
+                }
+        function drawPix(e){
+            prevX = currX
+            prevY = currY
+            tempX = parseInt((e.clientX - canvas.offsetLeft-scale)/scale)
+            tempY = parseInt((e.clientY - canvas.offsetTop-scale)/scale)
+            
+            // var pot = [[tempX,tempY],[tempX+1,tempY],
+            // [tempX+1,tempY+1],[tempX,tempY+1]]
             var pot = []
-            
-            var fourDir = [[1,0],[0,-1],[-1,0],[0,1]]
-            
-            unvisited[currPos[0]][currPos[1]] = false
-                for(var k = 0;k < dir.length;k++){
-                    if(disp[currPos[0]][currPos[1]][dir[k][0]]==1){
-                        var next = dir[k][1]
-                        var nextPos = [(currPos[0]+fourDir[next][0]),(currPos[1]+fourDir[next][1])]
-                            if(nextPos[0]>=0&&nextPos[1]>=0&&nextPos[0]<n&&nextPos[1]<m
-                                &&unvisited[nextPos[0]][nextPos[1]]){
-                                pot.push(nextPos)
-                            }
-                    }
-                }
-                // console.log(unvisited[0][0])
-                // console.log(pot)
-                if(pot.length){
-                    ctx.fillStyle = 'green'
-                    ctx.fillRect(currPos[1]*scale+scale+ind,currPos[0]*scale+scale+ind,scale-2*ind,scale-2*ind)
-                    
-                    var nextPos = pot[Math.floor(Math.random()*pot.length)]
-                    ctx.fillStyle = 'yellow'
-                    ctx.fillRect(nextPos[1]*scale+scale+ind,nextPos[0]*scale+scale+ind,
-                    scale-2*ind,scale-2*ind)
-                    unvisited[nextPos[0]][nextPos[1]] = false
-                    //console.log(unvisited)
-                    currPos = [nextPos[0], nextPos[1]]
-                    if(currPos[1]==(n-1)&&currPos[0]==(m-1)){
-                        alert('computer wins')
-                        clearInterval(setInterv)
-                    }
-                    //visited++
-                    path.push(currPos)
-                    console.log(path)
-                }
-                else{
-                    ctx.fillStyle = 'green'
-                    ctx.fillRect(currPos[1]*scale+scale+ind,currPos[0]*scale+scale+ind,scale-2*ind,scale-2*ind)
-                    currPos = path.pop()
-                    ctx.fillStyle = 'yellow'
-                    ctx.fillRect(currPos[1]*scale+scale+ind,currPos[0]*scale+scale+ind,
-                    scale-2*ind,scale-2*ind)
-                    console.log(pot.length)
-                    console.log(path)
-                }
+            function potential(x,y){
+                return pot = [[x,y],[x+1,y],
+            [x+1,y+1],[x,y+1]]
                 
-           // }
-         }
-         function solve(){
-             if(currPos[0]!=(y-1)&&currPos[1]!=(x-1)){
-                setInterv = setInterval(solveMaze,10)
-                console.log("worked")
-             }
-             
-         }
+            }
+            potential(tempX,tempY)
+            
+            //期待坐标*4 左上->左下
+            var trueX = e.clientX - canvas.offsetLeft-scale
+            var trueY = e.clientY - canvas.offsetTop-scale
+            var ret =[0,0,0,0]
+            
+            if(trueX <= tempX * scale + scale / 3){
+                ret[0]=1
+            }
+            if(trueX >= tempX * scale + scale * 2 / 3){
+                ret[1]=1
+            }
+            if(trueY <= tempY * scale + scale / 3){
+                ret[2]=1
+            }
+            if(trueY >= tempY * scale + scale * 2 / 3){
+                ret[3]=1
+            }
+            switch (ret.toString()) {
+                case [1,0,1,0].toString():
+                    currX = pot[0][0]
+                    currY = pot[0][1]
+                    break;
+                case [0,1,1,0].toString():
+                    currX = pot[1][0]
+                    currY = pot[1][1]
+                    break;
+                case [0,1,0,1].toString():
+                    currX = pot[2][0]
+                    currY = pot[2][1]
+                    break;
+                case [1,0,0,1].toString():
+                    currX = pot[3][0]
+                    currY = pot[3][1]
+                    break;
+            }
+            dot_flag = true
+            if (dot_flag) { 
+                ctx.beginPath()
+                ctx.fillStyle = 'black'
+                ctx.fillRect(currX*scale+scale-3, currY*scale+scale-3, 6, 6)
+                ctx.closePath()
+                unvi[currY][currX] = false
+                var res = [[currY+1,currX],[currY,currX+1],
+                [currY-1,currX],[currY,currX-1]],potDot = []
+                for(let k =0;k<4;k++){
+                    if(res[k][0]>=0&&res[k][1]>=0&&
+                    res[k][0]<=m&&res[k][1]<=n){
+                        potDot.push(res[k])
+                    }
+                }
+                for(let k =0;k<potDot.length;k++){
+                    let potY = potDot[k][0],potX = potDot[k][1]
+                    if(unvi[potY][potX]==false){
+                        ctx.beginPath();
+                        ctx.moveTo(currX*scale+scale, currY*scale+scale);
+                        ctx.lineTo(potX*scale+scale, potY*scale+scale);
+                        ctx.closePath(); //闭合路径
+                        ctx.lineWidth = 1//线的边框为10像素
+                        ctx.strokeStyle = 'black'
+                        ctx.stroke() 
+                        
+                        if(potY==currY){
+                            if(potX-currX==1){
+                                if(potX-1>=0&&potX-1<=m&&potY-1>=0&&potY-1<=n){
+                                    cells[potY-1][potX-1][2]=0
+                                }
+                                cells[currY][currX][0]=0
+                            }
+                            else if(potX-currX==-1){
+                                if(currX-1>=0&&currX-1<=m&&currY-1>=0&&currY-1<=n){
+                                    cells[currY-1][currX-1][2]=0
+                                }
+                                cells[potY][potX][0]=0
+                            }
+                        }
+                        if(potX=currX){
+                            if(potY-currY==1){
+                                if(potY-1>=0){
+                                    cells[potY-1][potX][3]=0
+                                }if(currX-1>=0){
+                                    cells[currY][currX-1][1]=0
+                                }
+                            }
+                            else if(potY-currY==-1){
+                                if(potX-1>=0){
+                                    cells[potY][potX-1][1]=0
+                                }if(currY-1>=0){
+                                    cells[currY-1][currX][3]=0
+                                }
+                                
+                            }
+                        }
+                        
+                        
+                    }
+                }
+
+                
+                dot_flag = false
+              }
+              console.log(cells);
+              
+              //drawMaze(cells,'black',0)
+        }
             
     </script>
 </body>
