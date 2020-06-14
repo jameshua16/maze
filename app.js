@@ -64,7 +64,8 @@ function playMove(cur,next){
             }
         }
 }
-function solveMaze(){     
+function solveMaze(){ 
+    
     var dir = [[1,3],[3,1],[0,2],[2,0]]
     var pot = []
     var fourDir = [[1,0],[0,-1],[-1,0],[0,1]]
@@ -110,7 +111,7 @@ function solveMaze(){
  }
  function solve(){
      if(currPos[0]!=(n-1)&&currPos[1]!=(m-1)){
-        setInterv = setInterval(solveMaze,10)
+        setInterv = setInterval(solveMaze,100)
         //console.log("worked")
      } 
  }

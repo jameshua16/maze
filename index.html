@@ -98,8 +98,16 @@
             function playgroundInit(){
                 ctx.clearRect(0, 0, w, h) 
                 var blankDisp = new Array(n).fill(new Array(m).fill([0,0,0,0]))
-                console.log(blankDisp)
-                drawMaze(blankDisp,'#A9A9A9',0)
+                drawMaze(blankDisp,'#A9A9A9',1)
+                ctx.beginPath();
+                ctx.moveTo(0+scale,0+scale);
+                ctx.lineTo(0+scale,m*scale+scale)
+                ctx.lineTo(m*scale+scale,m*scale+scale)
+                ctx.lineTo(m*scale+scale,0+scale)
+                ctx.closePath(); //闭合路径
+                ctx.lineWidth = 1; //线的边框为10像素
+                ctx.strokeStyle = 'black';
+                ctx.stroke(); 
             }
             canv.addEventListener("mousedown", function (e) {
             drawPix(e)
@@ -167,6 +175,7 @@
                     currY = pot[3][1]
                     break;
             }
+            
             dot_flag = true
             if (dot_flag) { 
                 ctx.beginPath()
@@ -223,18 +232,13 @@
                                 }
                                 
                             }
-                        }
-                        
-                        
+                        }   
                     }
                 }
-
-                
                 dot_flag = false
               }
-              console.log(cells);
-              
-              //drawMaze(cells,'black',0)
+              disp = cells
+              //console.log(cells)draw
         }
             
     </script>
